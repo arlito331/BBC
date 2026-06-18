@@ -1,0 +1,10 @@
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Local notes (don't commit secrets like real EmailJS keys if you keep them separate)
+notes.txt
+secrets.txt
