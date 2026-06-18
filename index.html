@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Bay Bay Capital — Factoring</title>
+<style>
+  :root{
+    --ink:#000000;
+    --ink-soft:#0E0E0E;
+    --paper:#000000;
+    --paper-raised:#0C0C0C;
+    --gold:#FFFFFF;
+    --gold-bright:#FFFFFF;
+    --charcoal:#F5F5F5;
+    --muted:#8A8A8A;
+    --line:#2A2A2A;
+    --line-soft:#1C1C1C;
+    --success:#7Fd49b;
+    --success-bg:#11261A;
+    --amber:#E0A24B;
+    --amber-bg:#2A2012;
+    --rust:#E8745F;
+    --rust-bg:#2A1512;
+    --serif:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    --sans:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#000000;
+    color:#F5F5F5;
+    font-family:var(--sans);
+    font-size:14px;
+    line-height:1.5;
+  }
+  .app{max-width:1180px;margin:0 auto;}
+  .topbar{
+    background:#000000;
+    color:#FFFFFF;
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #2A2A2A;
+  }
+  .brand{
+    font-family:var(--sans);
+    font-size:17px;
+    font-weight:900;
+    letter-spacing:0.06em;
+    display:flex;
+    align-items:baseline;
+    gap:12px;
+  }
+  .brand .mark{color:#FFFFFF;font-weight:900;}
+  .brand .sub{font-size:10px;letter-spacing:0.22em;color:#8A8A8A;text-transform:uppercase;font-family:var(--sans);font-weight:600;}
+  nav{display:flex;gap:4px;}
+  nav button{
+    background:transparent;
+    border:1px solid transparent;
+    color:#8A8A8A;
+    font-family:var(--sans);
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    padding:8px 16px;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  nav button:hover{color:#FFFFFF;background:rgba(255,255,255,0.06);}
+  nav button.active{color:#000000;background:#FFFFFF;}
+  main{padding:48px 28px;}
+  .view{display:none;}
+  .view.active{display:block;}
+  h1.page-title{
+    font-family:var(--sans);
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-0.02em;
+    margin:0 0 8px;
+    color:#FFFFFF;
+  }
+  .page-sub{color:var(--muted);font-size:14px;margin:0 0 32px;line-height:1.5;}
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:28px 30px;
+    margin-bottom:20px;
+  }
+  .card h2{
+    font-family:var(--sans);
+    font-size:15px;
+    font-weight:800;
+    letter-spacing:0.01em;
+    color:#FFFFFF;
+    margin:0 0 14px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--line-soft);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .step-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--line-soft);}
+  .step-head h2{margin:0;padding-bottom:0;border-bottom:none;}
+  .step-num{
+    flex:none;width:26px;height:26px;border-radius:50%;
+    background:#FFFFFF;color:#000000;
+    font-family:var(--sans);font-weight:800;font-size:14px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .opt-details{margin-top:6px;}
+  .opt-details summary{
+    cursor:pointer;color:var(--muted);font-size:12.5px;
+    list-style:none;
+  }
+  .opt-details summary::-webkit-details-marker{display:none;}
+  .tarifa-label{
+    display:block;font-size:11.5px;letter-spacing:0.04em;text-transform:uppercase;
+    color:var(--muted);margin:18px 0 8px;
+  }
+  .tarifa-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px;}
+  .tarifa-card{display:block;cursor:pointer;}
+  .tarifa-card input{position:absolute;opacity:0;pointer-events:none;}
+  .tarifa-card-inner{
+    border:1px solid var(--line);border-radius:12px;padding:22px 24px;
+    background:#0C0C0C;transition:border-color .12s, background .12s;
+  }
+  .tarifa-card input:checked + .tarifa-card-inner{
+    border-color:#FFFFFF;background:#161616;
+  }
+  .tarifa-card-title{font-family:var(--sans);font-weight:800;font-size:15px;color:#FFFFFF;margin-bottom:6px;}
+  .tarifa-card-pct{font-family:var(--mono);font-size:16px;color:#FFFFFF;font-weight:700;margin-bottom:3px;}
+  .tarifa-card-days{font-size:11px;color:var(--muted);}
+  .wiz-wrap{max-width:560px;margin:0 auto;}
+  .wiz-progress{height:3px;background:var(--line-soft);border-radius:0;overflow:hidden;margin-bottom:8px;}
+  .wiz-progress-bar{height:100%;background:#FFFFFF;transition:width .25s;}
+  .wiz-stepcount{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin:0 0 18px;font-weight:600;}
+  .wiz-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px;margin-bottom:40px;}
+  .wiz-nav .btn{min-width:130px;}
+  .pill-tarifa{
+    display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;
+    padding:3px 8px;border-radius:2px;background:#FFFFFF;color:#000000;
+  }
+  #login-screen{
+    position:fixed;inset:0;background:#000000;
+    display:flex;align-items:center;justify-content:center;z-index:100;
+  }
+  .login-card{
+    width:330px;background:#0C0C0C;border-radius:16px;
+    padding:40px 34px;border:1px solid var(--line);
+  }
+  .login-brand{font-family:var(--sans);font-weight:900;font-size:25px;letter-spacing:0.04em;color:#FFFFFF;text-align:center;margin-bottom:2px;line-height:1.1;}
+  .login-brand .mark{color:#FFFFFF;font-weight:900;}
+  .login-sub{text-align:center;color:var(--muted);font-size:12px;margin:0 0 20px;text-transform:uppercase;letter-spacing:0.08em;}
+  .login-error{color:var(--rust);font-size:12.5px;margin:-4px 0 12px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  .field input,.field select,.field textarea{
+    width:100%;
+    border:1px solid var(--line);
+    background:#000000;
+    border-radius:9px;
+    padding:13px 14px;
+    font-family:var(--sans);
+    font-size:14px;
+    color:#FFFFFF;
+  }
+  .field input::placeholder{color:#555555;}
+  .field input:focus,.field select:focus,.field textarea:focus{
+    outline:none;
+    border-color:#FFFFFF;
+    box-shadow:0 0 0 2px rgba(255,255,255,0.12);
+  }
+  .field .hint{font-size:11px;color:var(--muted);margin-top:6px;}
+  .btn{
+    font-family:var(--sans);
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    text-transform:none;
+    padding:12px 22px;
+    border-radius:10px;
+    border:1px solid #FFFFFF;
+    background:transparent;
+    color:#FFFFFF;
+    cursor:pointer;
+  }
+  .btn:hover{background:rgba(255,255,255,0.08);}
+  .btn.gold{background:#FFFFFF;border-color:#FFFFFF;color:#000000;}
+  .btn.gold:hover{background:#E0E0E0;}
+  .btn.ghost{background:transparent;color:#FFFFFF;border-color:var(--line);}
+  .btn.ghost:hover{background:rgba(255,255,255,0.08);}
+  .btn.small{padding:6px 12px;font-size:11px;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  table.ledger{width:100%;border-collapse:collapse;font-size:13px;}
+  table.ledger th{
+    text-align:left;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-weight:600;
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+  }
+  table.ledger td{
+    padding:12px 10px;
+    border-bottom:1px solid var(--line-soft);
+    vertical-align:middle;
+    color:#E8E8E8;
+  }
+  table.ledger tr:last-child td{border-bottom:none;}
+  table.ledger tbody tr:hover{background:rgba(255,255,255,0.04);cursor:pointer;}
+  .num{font-family:var(--mono);}
+  .pill{
+    display:inline-block;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:0.03em;
+    padding:3px 9px;
+    border-radius:20px;
+  }
+  .pill.t1{background:var(--success-bg);color:var(--success);}
+  .pill.t2{background:var(--amber-bg);color:var(--amber);}
+  .pill.t3{background:var(--rust-bg);color:var(--rust);}
+  .pill.paid{background:var(--success-bg);color:var(--success);}
+  .pill.pending{background:#1E1A2E;color:#A99BE0;}
+  .pill.draft{background:var(--line-soft);color:var(--muted);}
+  .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+  .kpi{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .kpi .label{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);font-weight:600;margin-bottom:8px;}
+  .kpi .value{font-family:var(--sans);font-weight:800;font-size:24px;color:#FFFFFF;}
+  .kpi .value.gold{color:#FFFFFF;}
+  .escalation{display:flex;align-items:center;gap:6px;width:100%;}
+  .escalation .seg{height:6px;border-radius:3px;background:var(--line);position:relative;}
+  .escalation .seg.t1{background:#2E4A38;}
+  .escalation .seg.t2{background:#4A3A1E;}
+  .escalation .seg.t3{background:#4A2018;}
+  .escalation .seg.active{box-shadow:inset 0 0 0 1.5px #FFFFFF;}
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(0,0,0,0.7);
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:40px 20px;overflow-y:auto;z-index:50;
+  }
+  .modal{
+    background:#0C0C0C;
+    border:1px solid var(--line);
+    border-radius:16px;
+    max-width:760px;width:100%;
+    padding:0;
+    max-height:90vh;
+    display:flex;flex-direction:column;
+  }
+  .modal-head{
+    padding:18px 24px;border-bottom:1px solid var(--line);
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .modal-head h3{font-family:var(--sans);font-weight:800;font-size:17px;margin:0;color:#FFFFFF;}
+  .modal-body{padding:20px 24px;overflow-y:auto;}
+  .modal-foot{padding:14px 24px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;}
+  .doc-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap;}
+  .doc-tabs button{
+    background:transparent;border:none;padding:9px 14px;font-size:12px;
+    color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
+  }
+  .doc-tabs button.active{color:#FFFFFF;border-bottom-color:#FFFFFF;font-weight:700;}
+  .doc-page{
+    background:#fff;border:1px solid var(--line);
+    padding:48px 56px;font-family:Georgia,"Times New Roman",serif;
+    font-size:13px;line-height:1.65;color:#1A1812;
+    max-width:680px;margin:0 auto;
+  }
+  .doc-page h3.doc-title{text-align:center;font-size:16px;letter-spacing:0.03em;margin:0 0 4px;}
+  .doc-page p.doc-sub{text-align:center;font-size:12px;font-style:italic;margin:0 0 26px;color:#444;}
+  .doc-page p{text-align:justify;margin:0 0 14px;}
+  .doc-page table{width:100%;border-collapse:collapse;font-size:11.5px;margin:14px 0 18px;}
+  .doc-page table th,.doc-page table td{border:1px solid #999;padding:6px 8px;text-align:center;}
+  .doc-page table th{background:#EFEAD9;}
+  .doc-page .sig-block{margin-top:48px;display:flex;gap:40px;}
+  .doc-page .sig-line{flex:1;border-top:1px solid #333;padding-top:6px;font-size:11.5px;text-align:center;}
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);}
+  .empty i{font-size:13px;}
+  .toast{
+    position:fixed;bottom:24px;right:24px;background:#FFFFFF;color:#000000;
+    padding:12px 18px;border-radius:3px;font-size:13px;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,0.5);
+    z-index:100;
+  }
+  @media print{
+    .topbar,nav,.no-print,#tap-diag,#fatal-error-banner{display:none !important;}
+    body{background:#fff !important;color:#000 !important;}
+    main{padding:0;}
+    .doc-page{border:none;padding:0;max-width:none;background:#fff !important;color:#000 !important;}
+  }
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-brand"><span class="mark">BAY BAY CAPITAL</span></div><p style="text-align:center;font-size:12px;letter-spacing:0.34em;color:#8A8A8A;margin:4px 0 0;text-transform:uppercase;font-weight:700;">factoring</p>
+    <p class="login-sub">Restricted access</p>
+    <div id="login-form">
+      <div class="field"><label>Username</label><input id="login-user" autocomplete="username"></div>
+      <div class="field"><label>Password</label><input id="login-pass" type="password" autocomplete="current-password"></div>
+      <div id="login-error" class="login-error" style="display:none;">Incorrect username or password.</div>
+      <button type="button" id="login-btn" class="btn gold" style="width:100%;">Sign in</button>
+      <button type="button" id="touchid-unlock-btn" class="btn ghost" style="width:100%;margin-top:10px;display:none;">Unlock with Touch ID</button>
+    </div>
+    <p style="text-align:center;font-size:10px;color:#555555;margin:16px 0 0;">build v11 &middot; 2026-06-18</p>
+  </div>
+</div>
+<div class="app" id="app-root" style="display:none;">
+  <div class="topbar no-print">
+    <div class="brand"><span class="mark">BAY BAY CAPITAL</span> <span class="sub">factoring</span></div>
+    <nav>
+      <button data-view="nuevo" class="active">New operation</button>
+      <button data-view="panel">Dashboard</button>
+      <span id="user-tag" style="margin-left:14px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#8A8A8A;align-self:center;"></span>
+      <button id="enable-touchid-btn" style="margin-left:10px;color:#8A8A8A;display:none;">Enable Touch ID</button>
+      <button id="logout-btn" style="margin-left:10px;color:#8A8A8A;">Sign out</button>
+    </nav>
+  </div>
+  <main>
+    <div class="view active" id="view-nuevo"></div>
+    <div class="view" id="view-panel"></div>
+  </main>
+</div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script id="app-script">
+/* ============ ERROR VISIBILITY (must run first) ============ */
+(function () {
+  function showFatalError(msg) {
+    if (!document.body) { setTimeout(() => showFatalError(msg), 50); return; }
+    let banner = document.getElementById('fatal-error-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'fatal-error-banner';
+      banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#8C3B2E;color:#fff;padding:14px 18px;font-family:monospace;font-size:13px;white-space:pre-wrap;';
+      document.body.prepend(banner);
+    }
+    banner.textContent = 'Application error (copy and send this message): ' + msg;
+  }
+  window.addEventListener('error', (e) => showFatalError(e.message + ' (line ' + e.lineno + ')'));
+  window.addEventListener('unhandledrejection', (e) => showFatalError(String(e.reason)));
+})();
+
+/* ============ SESSION / USERS ============ */
+// Two users. "1" is master (can delete). "v" can do everything except delete.
+let CURRENT_USER = null;          // '1' or 'v'
+function isMaster() { return CURRENT_USER === '1'; }
+
+/* ============ STORAGE (NUMBERS ONLY — no names or cédulas) ============
+   The dashboard stores ONLY non-identifying financials. Names and cédulas
+   are collected in the wizard, used to generate + email the documents, and
+   then discarded. Nothing sensitive is ever written to storage.
+
+   STORAGE ADAPTER: inside Claude's preview, window.storage exists (and is
+   shared between users). On a normal web host (GitHub Pages, etc.) it does
+   NOT exist, so we fall back to the browser's localStorage. Note: localStorage
+   is per-device — it does NOT sync between two people on different computers.
+   True cross-device sync needs a small backend (e.g. Firebase/Supabase). */
+const STORAGE_KEY = 'bbf-ledger-v1';
+let DEALS = [];
+let CURRENT_VIEW = 'nuevo';
+let DETAIL_DEAL_ID = null;
+
+function hasClaudeStorage() {
+  return typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function';
+}
+
+async function storageGetRaw() {
+  if (hasClaudeStorage()) {
+    const res = await window.storage.get(STORAGE_KEY, true);
+    return res && res.value ? res.value : null;
+  }
+  try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+}
+
+async function storageSetRaw(value) {
+  if (hasClaudeStorage()) {
+    await window.storage.set(STORAGE_KEY, value, true);
+    return;
+  }
+  try { localStorage.setItem(STORAGE_KEY, value); } catch (e) { /* ignore */ }
+}
+
+async function loadDeals() {
+  try {
+    const raw = await storageGetRaw();
+    DEALS = raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    DEALS = [];
+  }
+  if (DEALS.length === 0) {
+    DEALS = [seedDeal()];
+    await saveDeals();
+  }
+}
+
+async function saveDeals() {
+  try {
+    await storageSetRaw(JSON.stringify(DEALS));
+  } catch (e) {
+    showToast('Could not save. Please try again.');
+  }
+}
+
+function nextOpNumber() {
+  const nums = DEALS.map(d => d.opNumber || 0);
+  return (nums.length ? Math.max(...nums) : 0) + 1;
+}
+
+// Seed record = the real first deal, but stored as NUMBERS ONLY (no names).
+function seedDeal() {
+  return {
+    id: 'deal-001',
+    opNumber: 1,
+    createdAt: '2026-06-12',
+    creditoMonto: 32699.85,
+    anticipoMonto: 9000,
+    anticipoFecha: '2026-06-12',
+    tiers: defaultTiersA(),
+    tierPreset: 'A',
+    status: 'outstanding',
+    pagoFecha: null,
+    pagoMonto: null,
+    viaAvisoDeCesion: false,
+    aprobado: false,
+    aprobadoFecha: null
+  };
+}
+
+/* ============ EMAIL (auto-send via EmailJS) ============
+   Browser-only files can't send mail directly; EmailJS relays it.
+   DROP-IN: paste the three keys from your EmailJS account below.
+   Until then, sending is skipped gracefully (the app still works). */
+const EMAIL_CONFIG = {
+  serviceId:  '',   // <-- EmailJS Service ID
+  templateId: '',   // <-- EmailJS Template ID
+  publicKey:  '',    // <-- EmailJS Public Key
+  to: 'aa@mlggroup.com, vm@mlggroup.com'
+};
+
+function emailConfigured() {
+  return EMAIL_CONFIG.serviceId && EMAIL_CONFIG.templateId && EMAIL_CONFIG.publicKey;
+}
+
+// Sends a NON-SENSITIVE summary by default (numbers only). The full documents
+// are generated on screen for download. If you want the documents' text in the
+// email too, pass docsText — but remember that carries names/cédulas.
+async function sendDealEmail(summaryText) {
+  if (!emailConfigured()) return { skipped: true };
+  if (typeof emailjs === 'undefined') return { skipped: true, reason: 'emailjs not loaded' };
+  try {
+    emailjs.init({ publicKey: EMAIL_CONFIG.publicKey });
+    await emailjs.send(EMAIL_CONFIG.serviceId, EMAIL_CONFIG.templateId, {
+      to_email: EMAIL_CONFIG.to,
+      subject: 'BBF — New operation recorded',
+      message: summaryText
+    });
+    return { sent: true };
+  } catch (e) {
+    return { error: String(e) };
+  }
+}
+
+/* ============ NUMBER TO WORDS (Spanish currency — for documents) ============ */
+const UNIDADES = ["", "UNO", "DOS", "TRES", "CUATRO", "CINCO", "SEIS", "SIETE", "OCHO", "NUEVE"];
+const DECENAS = ["", "DIEZ", "VEINTE", "TREINTA", "CUARENTA", "CINCUENTA", "SESENTA", "SETENTA", "OCHENTA", "NOVENTA"];
+const DIECI = ["DIEZ", "ONCE", "DOCE", "TRECE", "CATORCE", "QUINCE", "DIECISÉIS", "DIECISIETE", "DIECIOCHO", "DIECINUEVE"];
+const VEINTI = ["VEINTE", "VEINTIUNO", "VEINTIDÓS", "VEINTITRÉS", "VEINTICUATRO", "VEINTICINCO", "VEINTISÉIS", "VEINTISIETE", "VEINTIOCHO", "VEINTINUEVE"];
+const CENTENAS = ["", "CIENTO", "DOSCIENTOS", "TRESCIENTOS", "CUATROCIENTOS", "QUINIENTOS", "SEISCIENTOS", "SETECIENTOS", "OCHOCIENTOS", "NOVECIENTOS"];
+
+function dosDigitos(n, apocope) {
+  if (n === 0) return "";
+  if (n < 10) return apocope && n === 1 ? "UN" : UNIDADES[n];
+  if (n < 20) return DIECI[n - 10];
+  if (n < 30) return apocope && n === 21 ? "VEINTIÚN" : VEINTI[n - 20];
+  const d = Math.floor(n / 10), u = n % 10;
+  if (u === 0) return DECENAS[d];
+  return DECENAS[d] + " Y " + (apocope && u === 1 ? "UN" : UNIDADES[u]);
+}
+function tresDigitos(n, apocope) {
+  if (n === 0) return "";
+  if (n === 100) return "CIEN";
+  const c = Math.floor(n / 100), resto = n % 100;
+  let out = "";
+  if (c > 0) out += CENTENAS[c];
+  if (resto > 0) out += (out ? " " : "") + dosDigitos(resto, apocope);
+  return out;
+}
+function enterosATexto(n) {
+  if (n === 0) return "CERO";
+  n = Math.floor(n);
+  const millones = Math.floor(n / 1000000);
+  const miles = Math.floor((n % 1000000) / 1000);
+  const resto = n % 1000;
+  let partes = [];
+  if (millones > 0) partes.push(millones === 1 ? "UN MILLÓN" : tresDigitos(millones, false) + " MILLONES");
+  if (miles > 0) {
+    const esUltimo = resto === 0;
+    partes.push(miles === 1 ? "MIL" : tresDigitos(miles, esUltimo) + " MIL");
+  }
+  if (resto > 0) partes.push(tresDigitos(resto, true));
+  return partes.join(" ");
+}
+function montoATexto(amount) {
+  const fixed = Math.round(amount * 100) / 100;
+  const enteros = Math.floor(fixed);
+  const centavos = Math.round((fixed - enteros) * 100);
+  const centavosStr = String(centavos).padStart(2, "0");
+  const textoEnteros = enterosATexto(enteros);
+  const formatted = fmtMoney(fixed);
+  return `${textoEnteros} DÓLARES CON ${centavosStr}/100 (US$${formatted})`;
+}
+function fmtMoney(n) {
+  return (Math.round(n * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/* ============ TIER / FEE CALCULATOR ============ */
+function defaultTiers() { return defaultTiersA(); }
+function defaultTiersA() {
+  return [
+    { label: 1, dayStart: 0, dayEnd: 15, pct: 20, legal: 250.00 },
+    { label: 2, dayStart: 16, dayEnd: 29, pct: 30, legal: 312.50 },
+    { label: 3, dayStart: 30, dayEnd: null, pct: 40, legal: 390.63, monthlyDefaultInterest: 2 }
+  ];
+}
+function defaultTiersB() {
+  return [
+    { label: 1, dayStart: 0, dayEnd: 15, pct: 10, legal: 250.00 },
+    { label: 2, dayStart: 16, dayEnd: 29, pct: 15, legal: 312.50 },
+    { label: 3, dayStart: 30, dayEnd: null, pct: 20, legal: 390.63, monthlyDefaultInterest: 2 }
+  ];
+}
+function tiersForPreset(preset) {
+  return preset === 'B' ? defaultTiersB() : defaultTiersA();
+}
+function round2(n) { return Math.round(n * 100) / 100; }
+function computeTierRow(advance, tier) {
+  const commission = round2(advance * (tier.pct / 100));
+  const total = round2(advance + commission + tier.legal);
+  return { ...tier, commission, total };
+}
+function addDays(dateStr, days) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d;
+}
+function buildTierTable(advance, tiers, startDateStr) {
+  return tiers.map(t => {
+    const row = computeTierRow(advance, t);
+    row.periodStart = addDays(startDateStr, t.dayStart);
+    row.periodEnd = t.dayEnd === null ? null : addDays(startDateStr, t.dayEnd);
+    return row;
+  });
+}
+function daysBetween(startStr, endStr) {
+  const a = new Date(startStr + 'T00:00:00');
+  const b = new Date(endStr + 'T00:00:00');
+  return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+}
+function tierForDay(tiers, day) {
+  for (const t of tiers) {
+    if (t.dayEnd === null) { if (day >= t.dayStart) return t; }
+    else if (day >= t.dayStart && day <= t.dayEnd) return t;
+  }
+  return tiers[tiers.length - 1];
+}
+function todayStr() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
+/* ============ DATE FORMATTING (Spanish) ============ */
+const MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+function fechaLarga(dateStr) {
+  if (!dateStr) return '[fecha pendiente]';
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${d.getDate()} de ${MESES[d.getMonth()]} de ${d.getFullYear()}`;
+}
+function fechaCorta(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${String(d.getDate()).padStart(2,'0')} ${MESES[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
+}
+function fechaCortaFromDate(d) {
+  return `${String(d.getDate()).padStart(2,'0')} ${MESES[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
+}
+
+/* ============ DATE FORMATTING (English — for the UI) ============ */
+const MONTHS_EN = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function dateShort(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${MONTHS_EN[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Contracts "de" + referencia into "del ..." when referencia starts with "el ",
+// so "derivado ${refDe(x)}" reads correctly regardless of how the text was typed.
+function refDe(referencia) {
+  const r = String(referencia || '').trim();
+  if (/^el\s+/i.test(r)) return 'del ' + r.replace(/^el\s+/i, '');
+  return 'de ' + r;
+}
+
+function dealComputed(deal) {
+  const table = buildTierTable(deal.anticipo.monto, deal.tiers, deal.anticipo.fecha);
+  return { t1: table[0], t2: table[1], t3: table[2] };
+}
+
+function repsComparecientesFactoraje(deal) {
+  const c = deal.cedente;
+  if (c.rep2Nombre && c.rep2Nombre.trim()) {
+    return `${esc(c.rep1Nombre)}, panameño(a), mayor de edad, portador(a) de la cédula de identidad personal No. ${esc(c.rep1Cedula) || '[pendiente]'}, y por ${esc(c.rep2Nombre)}, panameño(a), mayor de edad, portador(a) de la cédula de identidad personal No. ${esc(c.rep2Cedula) || '[pendiente]'}, actuando ambos de manera conjunta y solidaria en representación de ${esc(c.empresa)}`;
+  }
+  return `${esc(c.rep1Nombre)}, panameño(a), mayor de edad, portador(a) de la cédula de identidad personal No. ${esc(c.rep1Cedula) || '[pendiente]'}, actuando en representación de ${esc(c.empresa)}`;
+}
+
+function tierTableHTML(deal) {
+  const { t1, t2, t3 } = dealComputed(deal);
+  const row = (t) => `<tr><td>${t.label}</td><td>${fechaCorta(t.periodStart.toISOString().slice(0,10))} &ndash; ${t.periodEnd ? fechaCorta(t.periodEnd.toISOString().slice(0,10)) : 'en adelante'}</td><td>US$${fmtMoney(deal.anticipo.monto)}</td><td>${t.pct}% &mdash; US$${fmtMoney(t.commission)}</td><td>US$${fmtMoney(t.legal)}</td><td><strong>US$${fmtMoney(t.total)}</strong></td></tr>`;
+  return `<table><tr><th>Tramo</th><th>Período (fecha de pago)</th><th>Capital</th><th>Comisión</th><th>Gastos legales</th><th>Total a pagar</th></tr>${row(t1)}${row(t2)}${row(t3)}</table>`;
+}
+
+function docContrato(deal) {
+  const c = deal.cedente, f = deal.factor;
+  const { t3 } = dealComputed(deal);
+  const tier3Start = fechaCorta(t3.periodStart.toISOString().slice(0,10));
+  return `
+  <h3 class="doc-title">CONTRATO DE FACTORAJE (COMPRA DE CARTERA)</h3>
+  <p class="doc-sub">${esc(deal.lugar)}, ${fechaLarga(deal.anticipo.fecha)}</p>
+  <p>Entre los suscritos, a saber: de una parte, ${esc(c.empresa)}, representada en este acto por ${repsComparecientesFactoraje(deal)}, quien(es) en adelante se denominará(n) <strong>EL CEDENTE</strong>; y de otra parte, ${esc(f.nombre)}, panameño, mayor de edad, portador de la cédula de identidad personal No. ${esc(f.cedula)}, actuando en nombre propio mientras se constituye la sociedad que continuará sus operaciones, quien en adelante se denominará <strong>EL FACTOR</strong>; hemos convenido en celebrar el presente Contrato de Factoraje, el cual se regirá por las siguientes cláusulas:</p>
+
+  <p><strong>PRIMERA &mdash; OBJETO.</strong> El presente contrato tiene por objeto la compra, por parte de EL FACTOR, del crédito que EL CEDENTE tiene en contra de ${esc(deal.deudorCedido.nombre)}, en adelante <strong>EL DEUDOR CEDIDO</strong>, derivado ${esc(refDe(deal.contrato.referencia))}. Las partes declaran expresamente que la presente operación constituye una compraventa de cartera (cesión de crédito) regulada por los artículos pertinentes del Código Civil de la República de Panamá, y que en ningún caso deberá interpretarse como un préstamo, mutuo, ni operación de crédito sujeta a las leyes que regulan la actividad bancaria o financiera.</p>
+
+  <p><strong>SEGUNDA &mdash; IDENTIFICACIÓN DEL CRÉDITO CEDIDO.</strong> El crédito objeto de la presente cesión asciende a la suma de ${montoATexto(deal.credito.monto)}, correspondiente a ${esc(deal.credito.descripcion)}, a cargo de EL DEUDOR CEDIDO.</p>
+
+  <p><strong>TERCERA &mdash; PRECIO Y ANTICIPO.</strong> En contraprestación por la cesión del crédito descrito en la cláusula anterior, EL FACTOR entrega en este acto a EL CEDENTE, en efectivo y a su entera satisfacción, la suma de ${montoATexto(deal.anticipo.monto)}, en adelante <strong>EL ANTICIPO</strong>, cuya recepción consta en el Recibo de Dinero suscrito en esta misma fecha.</p>
+
+  <p><strong>CUARTA &mdash; PLAZO Y TRAMOS DE LIQUIDACIÓN.</strong> EL CEDENTE se obliga a reintegrar a EL FACTOR el monto correspondiente al tramo vigente según la tabla siguiente, contada a partir de la fecha de entrega de EL ANTICIPO (${fechaLarga(deal.anticipo.fecha)}):</p>
+  ${tierTableHTML(deal)}
+
+  <p><strong>QUINTA &mdash; VENCIMIENTO Y COBRO DIRECTO.</strong> Si al día treinta (30), es decir, a partir del ${tier3Start}, EL CEDENTE no hubiere pagado el Total a Pagar correspondiente, EL FACTOR queda facultado, sin necesidad de requerimiento adicional, para presentar a EL DEUDOR CEDIDO el Aviso de Cesión suscrito en esta misma fecha y mantenido en reserva, y para cobrar directamente de éste la totalidad de EL CRÉDITO. En tal caso, EL FACTOR retendrá el Total a Pagar del Tramo 3 y entregará a EL CEDENTE el remanente, en efectivo y contra recibo firmado, dentro de los tres (3) días hábiles siguientes al cobro efectivo.</p>
+
+  <p><strong>SEXTA &mdash; GARANTÍA.</strong> En garantía del cumplimiento de las obligaciones de EL CEDENTE bajo el presente contrato, ${esc(c.rep1Nombre)}${c.rep2Nombre ? ' y ' + esc(c.rep2Nombre) : ''} suscribe(n), de manera solidaria, el Pagaré de esta misma fecha.</p>
+
+  <p><strong>SÉPTIMA &mdash; GASTOS LEGALES.</strong> Los gastos legales de formalización de la presente operación, según el tramo en que se efectúe el pago, serán asumidos por EL CEDENTE y se incorporan al Total a Pagar indicado en la tabla de la Cláusula Cuarta. Dichos gastos no se deducen de EL ANTICIPO ni del precio pactado, sino que se adicionan al monto a reintegrar.</p>
+
+  <p><strong>OCTAVA &mdash; NATURALEZA IRREVOCABLE.</strong> La cesión del crédito objeto de este contrato es pura, simple e irrevocable. EL CEDENTE declara que el crédito cedido es cierto, líquido, exigible, y se encuentra libre de gravámenes, embargos o cesiones previas a favor de terceros, y se constituye en garante de la existencia y legitimidad del mismo.</p>
+
+  <p><strong>NOVENA &mdash; LEY APLICABLE Y JURISDICCIÓN.</strong> El presente contrato se rige por las leyes de la República de Panamá. Para todo lo relativo a su interpretación, cumplimiento y ejecución, las partes se someten a la jurisdicción de los tribunales ordinarios del Primer Circuito Judicial de Panamá, con renuncia expresa a cualquier otro fuero.</p>
+
+  <p>Para que así conste, las partes firman el presente contrato en dos (2) ejemplares de idéntico tenor, en el lugar y fecha indicados.</p>
+
+  <div class="sig-block">
+    <div class="sig-line">EL CEDENTE<br>${esc(c.empresa)}</div>
+    <div class="sig-line">EL FACTOR<br>${esc(f.nombre)}</div>
+  </div>
+  <div class="sig-block">
+    <div class="sig-line">Testigo: ${esc(deal.testigo) || '[testigo]'}</div>
+  </div>`;
+}
+
+function docCesion(deal) {
+  const c = deal.cedente, f = deal.factor;
+  return `
+  <h3 class="doc-title">CESIÓN DE CRÉDITO</h3>
+  <p class="doc-sub">${esc(deal.lugar)}, ${fechaLarga(deal.anticipo.fecha)}</p>
+  <p>Por medio del presente documento, ${esc(c.empresa)}, representada por ${repsComparecientesFactoraje(deal)}, en adelante <strong>EL CEDENTE</strong>, declara:</p>
+
+  <p><strong>PRIMERA.</strong> EL CEDENTE es titular de un crédito cierto, líquido y exigible en contra de ${esc(deal.deudorCedido.nombre)} (<strong>EL DEUDOR CEDIDO</strong>), derivado ${esc(refDe(deal.contrato.referencia))}, por la suma de ${montoATexto(deal.credito.monto)}, en adelante <strong>EL CRÉDITO</strong>.</p>
+
+  <p><strong>SEGUNDA.</strong> Mediante el presente acto, EL CEDENTE cede, vende y transfiere a título oneroso, en favor de ${esc(f.nombre)} (<strong>EL FACTOR</strong>), de manera pura, simple e irrevocable, la totalidad de EL CRÉDITO, junto con todos los derechos, acciones y garantías inherentes al mismo, de conformidad con los artículos del Código Civil de la República de Panamá relativos a la cesión de créditos.</p>
+
+  <p><strong>TERCERA.</strong> Como consecuencia de la presente cesión, EL FACTOR queda subrogado en todos los derechos que correspondían a EL CEDENTE frente a EL DEUDOR CEDIDO en relación con EL CRÉDITO, incluyendo el derecho a recibir el pago directamente de éste.</p>
+
+  <p><strong>CUARTA.</strong> La notificación de la presente cesión a EL DEUDOR CEDIDO se efectuará mediante el Aviso de Cesión suscrito en esta misma fecha, el cual EL FACTOR mantendrá en reserva y podrá presentar a su sola discreción conforme a lo previsto en el Contrato de Factoraje suscrito entre las partes.</p>
+
+  <p><strong>QUINTA.</strong> EL CEDENTE garantiza la existencia, legitimidad y exigibilidad de EL CRÉDITO, así como que el mismo se encuentra libre de gravámenes, litigios, embargos o cesiones anteriores.</p>
+
+  <div class="sig-block">
+    <div class="sig-line">EL CEDENTE<br>${esc(c.empresa)}</div>
+    <div class="sig-line">EL FACTOR<br>${esc(f.nombre)}</div>
+  </div>
+  <div class="sig-block">
+    <div class="sig-line">Testigo: ${esc(deal.testigo) || '[testigo]'}</div>
+  </div>`;
+}
+
+function docAviso(deal) {
+  const f = deal.factor;
+  return `
+  <div style="background:#F2DFD9;border:1px solid #C99A8C;padding:10px 14px;margin-bottom:18px;font-family:var(--sans);font-size:12px;color:#8C3B2E;border-radius:4px;">
+    DOCUMENTO EN RESERVA &mdash; suscrito junto con el resto del paquete, pero no se presenta a ${esc(deal.deudorCedido.nombre)} salvo que EL CEDENTE no pague el Tramo 3 (a partir del día 30).
+  </div>
+  <h3 class="doc-title">AVISO DE CESIÓN DE CRÉDITO</h3>
+  <p class="doc-sub">${esc(deal.lugar)}, [fecha de presentación &mdash; a completarse al momento de notificar]</p>
+  <p>Señores<br>${esc(deal.deudorCedido.nombre)}<br>${esc(deal.lugar)}</p>
+  <p><strong>Asunto: Aviso de Cesión de Crédito</strong></p>
+  <p>Por medio de la presente, les notificamos formalmente que ${esc(deal.cedente.empresa)} ha cedido, vendido y transferido en favor de ${esc(f.nombre)} (EL FACTOR), de manera pura, simple e irrevocable, la totalidad del crédito derivado ${esc(refDe(deal.contrato.referencia))}, por la suma de ${montoATexto(deal.credito.monto)}, conforme al Contrato de Factoraje y a la Cesión de Crédito suscritos entre EL CEDENTE y EL FACTOR de fecha ${fechaLarga(deal.anticipo.fecha)}.</p>
+  <p>En virtud de lo anterior, les solicitamos efectuar el pago de dicha suma directamente a ${esc(f.nombre)}, portador de la cédula de identidad personal No. ${esc(f.cedula)}, quedando EL CEDENTE liberado de toda obligación de cobro frente a ustedes una vez efectuado dicho pago.</p>
+  <p>Cualquier pago que se realice a EL CEDENTE con posterioridad a la fecha de la presente notificación no liberará a ${esc(deal.deudorCedido.nombre)} de su obligación frente a EL FACTOR.</p>
+  <p>Atentamente,</p>
+  <div class="sig-block">
+    <div class="sig-line">${esc(f.nombre)}<br>Cédula No. ${esc(f.cedula)}</div>
+  </div>`;
+}
+
+function docPagare(deal) {
+  const c = deal.cedente, f = deal.factor;
+  const { t1, t2, t3 } = dealComputed(deal);
+  const tier3Start = fechaCorta(t3.periodStart.toISOString().slice(0,10));
+  const tier1End = fechaCorta(t1.periodEnd.toISOString().slice(0,10));
+  const tier2Start = fechaCorta(t2.periodStart.toISOString().slice(0,10));
+  const tier2End = fechaCorta(t2.periodEnd.toISOString().slice(0,10));
+  const firmantes = c.rep2Nombre && c.rep2Nombre.trim()
+    ? `${esc(c.rep1Nombre)}, panameño(a), mayor de edad, portador(a) de la cédula de identidad personal No. ${esc(c.rep1Cedula) || '[pendiente]'}, actuando en nombre y representación de ${esc(c.empresa)} y, solidariamente, en mi propio nombre y por cuenta propia; y ${esc(c.rep2Nombre)}, panameño(a), mayor de edad, portador(a) de la cédula de identidad personal No. ${esc(c.rep2Cedula) || '[pendiente]'}, también solidariamente, en mi propio nombre y por cuenta propia,`
+    : `${esc(c.rep1Nombre)}, panameño(a), mayor de edad, portador(a) de la cédula de identidad personal No. ${esc(c.rep1Cedula) || '[pendiente]'}, actuando en nombre y representación de ${esc(c.empresa)} y, solidariamente, en mi propio nombre y por cuenta propia,`;
+  return `
+  <h3 class="doc-title">PAGARÉ A LA ORDEN</h3>
+  <p class="doc-sub">US$${fmtMoney(deal.anticipo.monto)} &mdash; ${esc(deal.lugar)}, ${fechaLarga(deal.anticipo.fecha)}</p>
+
+  <p>Por el presente <strong>PAGARÉ</strong>, yo/nosotros, ${firmantes} declaramos que debemos y prometemos pagar incondicionalmente, <strong>A LA ORDEN</strong> de ${esc(f.nombre)}, panameño, mayor de edad, portador de la cédula de identidad personal No. ${esc(f.cedula)}, la suma de ${montoATexto(t3.total)}, moneda de curso legal de los Estados Unidos de América, correspondiente al capital de ${montoATexto(deal.anticipo.monto)} &mdash; recibido en efectivo a nuestra entera satisfacción &mdash; más la comisión de ${montoATexto(t3.commission)} y los gastos legales de ${montoATexto(t3.legal)} del Tramo 3 previstos en el Contrato de Factoraje de fecha ${fechaLarga(deal.anticipo.fecha)}.</p>
+
+  <p><strong>Pago anticipado.</strong> Si el pago se efectúa a más tardar el ${tier1End}, el monto exigible bajo este pagaré será de ${montoATexto(t1.total)} (Total a Pagar del Tramo 1); si se efectúa entre el ${tier2Start} y el ${tier2End}, será de ${montoATexto(t2.total)} (Total a Pagar del Tramo 2), conforme a la tabla de liquidación del Contrato de Factoraje. El pago del monto del tramo vigente cancelará íntegramente este pagaré.</p>
+
+  <p><strong>Vencimiento.</strong> Este pagaré es pagadero <strong>A LA VISTA</strong>, a partir del ${tier3Start}, en la ciudad de Panamá, en efectivo, contra su presentación por el tenedor.</p>
+
+  <p><strong>Intereses moratorios.</strong> A partir del ${tier3Start}, en caso de no haberse efectuado el pago, este pagaré devengará intereses moratorios adicionales del dos por ciento (2%) mensual sobre el Total a Pagar del Tramo 3, calculados proporcionalmente por cada mes o fracción de mes de atraso, hasta su pago total.</p>
+
+  <p><strong>Causa.</strong> El presente pagaré se suscribe en garantía de las obligaciones derivadas del Contrato de Factoraje y de la Cesión de Crédito, ambos de fecha ${fechaLarga(deal.anticipo.fecha)}, suscritos entre ${esc(c.empresa)} y ${esc(f.nombre)}. El cobro efectivo del crédito cedido por parte del tenedor también extinguirá este pagaré. Una vez extinguido, el pagaré será devuelto al(los) suscriptor(es) debidamente cancelado.</p>
+
+  <p><strong>Renuncias.</strong> El(Los) suscriptor(es) renuncia(n) expresamente a la presentación para el pago, al protesto y al aviso de rechazo, así como al domicilio y a los trámites del juicio ejecutivo. Este pagaré presta mérito ejecutivo.</p>
+
+  <div class="sig-block">
+    <div class="sig-line">${esc(c.rep1Nombre)}</div>
+    ${c.rep2Nombre ? `<div class="sig-line">${esc(c.rep2Nombre)}</div>` : ''}
+  </div>
+  <div class="sig-block">
+    <div class="sig-line">Testigo: ${esc(deal.testigo) || '[testigo]'}</div>
+  </div>`;
+}
+
+function docRecibo(deal) {
+  const c = deal.cedente, f = deal.factor;
+  return `
+  <h3 class="doc-title">RECIBO DE DINERO</h3>
+  <p class="doc-sub">${esc(deal.lugar)}, ${fechaLarga(deal.anticipo.fecha)}</p>
+  <p>Yo, ${esc(c.rep1Nombre)}, portador(a) de la cédula de identidad personal No. ${esc(c.rep1Cedula) || '[pendiente]'}, actuando en nombre y representación de ${esc(c.empresa)}, declaro haber recibido de ${esc(f.nombre)}, portador de la cédula de identidad personal No. ${esc(f.cedula)}, la suma de ${montoATexto(deal.anticipo.monto)}, en efectivo y a mi entera satisfacción, en concepto de anticipo bajo el Contrato de Factoraje suscrito en esta misma fecha entre ${esc(c.empresa)} y ${esc(f.nombre)}, relativo al crédito derivado ${esc(refDe(deal.contrato.referencia))}.</p>
+  <p>En fe de lo cual firmo el presente recibo en la fecha indicada.</p>
+  <div class="sig-block">
+    <div class="sig-line">${esc(c.rep1Nombre)}<br>${esc(c.empresa)}</div>
+  </div>
+  <div class="sig-block">
+    <div class="sig-line">Testigo: ${esc(deal.testigo) || '[testigo]'}</div>
+  </div>`;
+}
+
+const DOC_GENERATORS = {
+  contrato: { label: 'Contrato de Factoraje', fn: docContrato },
+  cesion: { label: 'Cesión de Crédito', fn: docCesion },
+  aviso: { label: 'Aviso de Cesión', fn: docAviso },
+  pagare: { label: 'Pagaré', fn: docPagare },
+  recibo: { label: 'Recibo de Dinero', fn: docRecibo }
+};
+/* ============ TOAST ============ */
+function showToast(msg) {
+  const root = document.getElementById('toast-root');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  root.appendChild(el);
+  setTimeout(() => el.remove(), 3200);
+}
+
+/* ============ KPIs ============ */
+function computeKPIs() {
+  let outstandingSum = 0, outstandingCount = 0;
+  let totalCollected = 0, totalFeeRevenue = 0, paidCount = 0;
+  let daysSum = 0;
+  let tierCounts = { 1: 0, 2: 0, 3: 0 };
+  let defaultCount = 0;
+
+  DEALS.forEach(d => {
+    if (d.status === 'outstanding' || d.status === 'pendingApproval') {
+      outstandingSum += d.anticipoMonto;
+      outstandingCount++;
+    }
+    if (d.status === 'paid') {
+      paidCount++;
+      const days = daysBetween(d.anticipoFecha, d.pagoFecha);
+      const tier = tierForDay(d.tiers, Math.max(days, 0));
+      const row = computeTierRow(d.anticipoMonto, tier);
+      totalCollected += d.pagoMonto != null ? d.pagoMonto : row.total;
+      totalFeeRevenue += row.commission + row.legal;
+      daysSum += days;
+      tierCounts[tier.label] = (tierCounts[tier.label] || 0) + 1;
+      if (tier.label === 3) defaultCount++;
+    }
+  });
+
+  return {
+    outstandingSum, outstandingCount,
+    totalCollected, totalFeeRevenue, paidCount,
+    avgDays: paidCount ? Math.round(daysSum / paidCount) : null,
+    tierCounts, defaultRate: paidCount ? Math.round((defaultCount / paidCount) * 100) : 0
+  };
+}
+
+/* ============ NUEVO TRATO VIEW ============ */
+/* ============ NEW OPERATION WIZARD ============ */
+const MAX_ADVANCE_PCT = 0.60; // cash advance can never exceed 60% of the receivable
+let WIZ = null;
+
+function freshWiz() {
+  return {
+    step: 1,
+    tierPreset: 'A',
+    empresa: '', rep1Nombre: '', rep1Cedula: '',
+    rep2Nombre: '', rep2Cedula: '', testigo: '',
+    deudorNombre: '',
+    creditoMonto: '', creditoDesc: '',
+    anticipoMonto: '', anticipoFecha: todayStr(),
+    notas: ''
+  };
+}
+
+const WIZ_TOTAL_STEPS = 4;
+
+function renderNuevoView() {
+  if (!WIZ) WIZ = freshWiz();
+  saveWizFromDom(); // preserve anything typed before a re-render
+  const el = document.getElementById('view-nuevo');
+  const step = WIZ.step;
+
+  let body = '';
+  if (step === 1) body = wizStepTarifa();
+  else if (step === 2) body = wizStepContratista();
+  else if (step === 3) body = wizStepDeudor();
+  else if (step === 4) body = wizStepMontos();
+  else if (step === 5) { renderDealResult(el); return; }
+
+  const pct = Math.round((Math.min(step, WIZ_TOTAL_STEPS) / WIZ_TOTAL_STEPS) * 100);
+  el.innerHTML = `
+    <div class="wiz-wrap">
+      <div class="wiz-progress"><div class="wiz-progress-bar" style="width:${pct}%;"></div></div>
+      <p class="wiz-stepcount">Step ${step} of ${WIZ_TOTAL_STEPS}</p>
+      ${body}
+      <div class="wiz-nav no-print">
+        ${step > 1 ? `<button type="button" class="btn ghost" data-wiz="back">Back</button>` : `<span></span>`}
+        <button type="button" class="btn gold" data-wiz="next">${step === WIZ_TOTAL_STEPS ? 'Generate documents' : 'Continue'}</button>
+      </div>
+    </div>
+  `;
+}
+
+function wizStepTarifa() {
+  const a = WIZ.tierPreset === 'A', b = WIZ.tierPreset === 'B';
+  return `
+    <h1 class="page-title">New operation</h1>
+    <p class="page-sub">Choose the rate for this operation.</p>
+    <div class="tarifa-cards">
+      <label class="tarifa-card">
+        <input type="radio" name="tierPreset" value="A" ${a?'checked':''}>
+        <div class="tarifa-card-inner">
+          <div class="tarifa-card-title">Rate A</div>
+          <div class="tarifa-card-pct">20% &middot; 30% &middot; 40%</div>
+          <div class="tarifa-card-days">0&ndash;15 days &middot; 16&ndash;29 days &middot; 30+ days</div>
+        </div>
+      </label>
+      <label class="tarifa-card">
+        <input type="radio" name="tierPreset" value="B" ${b?'checked':''}>
+        <div class="tarifa-card-inner">
+          <div class="tarifa-card-title">Rate B</div>
+          <div class="tarifa-card-pct">10% &middot; 15% &middot; 20%</div>
+          <div class="tarifa-card-days">0&ndash;15 days &middot; 16&ndash;29 days &middot; 30+ days</div>
+        </div>
+      </label>
+    </div>
+  `;
+}
+
+function wizStepContratista() {
+  return `
+    <h1 class="page-title">Who receives the advance?</h1>
+    <p class="page-sub">The contractor factoring with BBF.</p>
+    <div class="card">
+      <div class="field"><label>Company / legal name</label><input name="empresa" value="${esc(WIZ.empresa)}" placeholder="e.g. Servicios y Ventas Álvarez"></div>
+      <div class="grid2">
+        <div class="field"><label>Representative &mdash; name</label><input name="rep1Nombre" value="${esc(WIZ.rep1Nombre)}"></div>
+        <div class="field"><label>Representative &mdash; ID (cédula)</label><input name="rep1Cedula" value="${esc(WIZ.rep1Cedula)}" placeholder="0-000-0000"></div>
+      </div>
+      <details class="opt-details" ${(WIZ.rep2Nombre||WIZ.testigo)?'open':''}>
+        <summary>+ Second representative or witness (optional)</summary>
+        <div class="grid2" style="margin-top:10px;">
+          <div class="field"><label>Representative 2 &mdash; name</label><input name="rep2Nombre" value="${esc(WIZ.rep2Nombre)}"></div>
+          <div class="field"><label>Representative 2 &mdash; ID (cédula)</label><input name="rep2Cedula" value="${esc(WIZ.rep2Cedula)}"></div>
+        </div>
+        <div class="field"><label>Witness</label><input name="testigo" value="${esc(WIZ.testigo)}" placeholder="Witness name"></div>
+      </details>
+      <p class="hint" style="margin-top:14px;">Names and IDs are used only to create the documents — they are not saved to the dashboard.</p>
+    </div>
+  `;
+}
+
+function wizStepDeudor() {
+  return `
+    <h1 class="page-title">Who owes the payment?</h1>
+    <p class="page-sub">The company that owes the contractor (assigned debtor).</p>
+    <div class="card">
+      <div class="field"><label>Company that owes</label><input name="deudorNombre" value="${esc(WIZ.deudorNombre)}" placeholder="e.g. the developer's company"></div>
+      <div class="field"><label>What payment is being assigned?</label>
+        <input name="creditoDesc" value="${esc(WIZ.creditoDesc)}" placeholder="e.g. 50% of the second construction-contract payment">
+        <div class="hint">A few words &mdash; this goes straight into the documents.</div>
+      </div>
+    </div>
+  `;
+}
+
+function wizStepMontos() {
+  const rec = parseFloat(WIZ.creditoMonto);
+  const maxAdv = Number.isFinite(rec) ? rec * MAX_ADVANCE_PCT : null;
+  return `
+    <h1 class="page-title">Amount and period</h1>
+    <p class="page-sub">Cash can never exceed 60% of what is owed.</p>
+    <div class="card">
+      <div class="field"><label>Total owed / assigned receivable (US$)</label>
+        <input name="creditoMonto" id="wiz-credito" type="number" step="0.01" value="${esc(WIZ.creditoMonto)}" placeholder="32699.85">
+      </div>
+      <div class="field"><label>Cash to hand over today (US$)</label>
+        <input name="anticipoMonto" id="wiz-anticipo" type="number" step="0.01" value="${esc(WIZ.anticipoMonto)}" placeholder="9000.00">
+        <div class="hint" id="wiz-cap-hint">${maxAdv!=null ? `Maximum cash (60%): US$${fmtMoney(maxAdv)}` : 'Enter the total owed first.'}</div>
+      </div>
+      <div class="field" style="margin-bottom:0;"><label>Advance date (starts the day count)</label>
+        <input name="anticipoFecha" type="date" value="${esc(WIZ.anticipoFecha)}">
+      </div>
+    </div>
+  `;
+}
+
+// Pull whatever's currently in the DOM step inputs into WIZ state.
+function saveWizFromDom() {
+  const view = document.getElementById('view-nuevo');
+  if (!view) return;
+  const grab = (name) => {
+    const el = view.querySelector(`[name="${name}"]`);
+    return el ? el.value : undefined;
+  };
+  const checkedTier = view.querySelector('input[name="tierPreset"]:checked');
+  if (checkedTier) WIZ.tierPreset = checkedTier.value === 'B' ? 'B' : 'A';
+  ['empresa','rep1Nombre','rep1Cedula','rep2Nombre','rep2Cedula','testigo',
+   'deudorNombre','creditoDesc','creditoMonto','anticipoMonto','anticipoFecha','notas'
+  ].forEach(k => { const v = grab(k); if (v !== undefined) WIZ[k] = v; });
+}
+
+function wizValidateStep(step) {
+  if (step === 2) {
+    if (!WIZ.empresa.trim()) return 'Company name is required.';
+    if (!WIZ.rep1Nombre.trim()) return 'Representative name is required.';
+    if (!WIZ.rep1Cedula.trim()) return 'Representative ID is required.';
+  }
+  if (step === 3) {
+    if (!WIZ.deudorNombre.trim()) return 'The company that owes is required.';
+    if (!WIZ.creditoDesc.trim()) return 'Describe the payment being assigned.';
+  }
+  if (step === 4) {
+    const rec = parseFloat(WIZ.creditoMonto);
+    const adv = parseFloat(WIZ.anticipoMonto);
+    if (!Number.isFinite(rec) || rec <= 0) return 'Enter the total owed.';
+    if (!Number.isFinite(adv) || adv <= 0) return 'Enter the cash to hand over.';
+    if (adv > rec * MAX_ADVANCE_PCT + 0.005) {
+      return `Cash (US$${fmtMoney(adv)}) exceeds the 60% limit. Maximum: US$${fmtMoney(rec * MAX_ADVANCE_PCT)}.`;
+    }
+    if (!WIZ.anticipoFecha) return 'Advance date is required.';
+  }
+  return null;
+}
+
+function wizNext() {
+  saveWizFromDom();
+  const err = wizValidateStep(WIZ.step);
+  if (err) { showToast(err); return; }
+  if (WIZ.step < WIZ_TOTAL_STEPS) {
+    WIZ.step++;
+    renderNuevoView();
+  } else {
+    finalizeWizDeal();
+  }
+}
+
+function wizBack() {
+  saveWizFromDom();
+  if (WIZ.step > 1) { WIZ.step--; renderNuevoView(); }
+}
+
+// Holds the full deal (with names/cédulas) for the current result screen ONLY.
+// Never persisted. Cleared when leaving the result view.
+let LAST_FULL_DEAL = null;
+
+async function finalizeWizDeal() {
+  const preset = WIZ.tierPreset === 'B' ? 'B' : 'A';
+  const tiers = tiersForPreset(preset);
+  const id = 'deal-' + Date.now();
+  const opNumber = nextOpNumber();
+  const advance = parseFloat(WIZ.anticipoMonto);
+  const receivable = parseFloat(WIZ.creditoMonto);
+
+  // 1) TRANSIENT full object — used to generate documents + email, then dropped.
+  const fullDeal = {
+    id, opNumber,
+    createdAt: todayStr(),
+    cedente: {
+      empresa: WIZ.empresa.trim(),
+      rep1Nombre: WIZ.rep1Nombre.trim(),
+      rep1Cedula: WIZ.rep1Cedula.trim(),
+      rep2Nombre: WIZ.rep2Nombre.trim(),
+      rep2Cedula: WIZ.rep2Cedula.trim()
+    },
+    deudorCedido: { nombre: WIZ.deudorNombre.trim() },
+    contrato: { referencia: WIZ.creditoDesc.trim() },
+    credito: { monto: receivable, descripcion: WIZ.creditoDesc.trim() },
+    anticipo: { monto: advance, fecha: WIZ.anticipoFecha },
+    factor: { nombre: 'Ariel Ashouri Levy', cedula: '8-774-2065' },
+    testigo: WIZ.testigo.trim(),
+    lugar: 'Ciudad de Panamá',
+    tiers, tierPreset: preset,
+    // fields the document generators expect for an outstanding deal:
+    status: 'outstanding', pagoFecha: null, pagoMonto: null,
+    viaAvisoDeCesion: false, aprobado: false, aprobadoFecha: null, notas: ''
+  };
+  LAST_FULL_DEAL = fullDeal;
+
+  // 2) STORED record — NUMBERS ONLY. No names, no cédulas, no debtor.
+  const stored = {
+    id, opNumber,
+    createdAt: todayStr(),
+    creditoMonto: receivable,
+    anticipoMonto: advance,
+    anticipoFecha: WIZ.anticipoFecha,
+    tiers, tierPreset: preset,
+    status: 'outstanding',
+    pagoFecha: null, pagoMonto: null,
+    viaAvisoDeCesion: false,
+    aprobado: false, aprobadoFecha: null
+  };
+  DEALS.push(stored);
+  await saveDeals();
+
+  // 3) Auto-email a NON-SENSITIVE summary (numbers only).
+  const summary =
+    `New operation recorded.\n\n` +
+    `Operation #: ${opNumber}\n` +
+    `Rate: ${preset} (${tiers.map(t=>t.pct+'%').join(' / ')})\n` +
+    `Total owed: US$${fmtMoney(receivable)}\n` +
+    `Cash advanced: US$${fmtMoney(advance)}\n` +
+    `Advance date: ${dateShort(WIZ.anticipoFecha)}\n\n` +
+    `Documents were generated for download in the app.`;
+  const emailRes = await sendDealEmail(summary);
+
+  WIZ.step = 5;
+  WIZ.lastDealId = id;
+  if (emailRes && emailRes.sent) showToast('Saved. Documents generated. Email sent.');
+  else showToast('Saved. Documents generated.');
+  renderNuevoView();
+}
+
+function renderDealResult(el) {
+  const deal = LAST_FULL_DEAL;
+  if (!deal) {
+    // Full data is gone (e.g. page reloaded). Documents can't be regenerated
+    // because names/IDs are never stored — by design.
+    el.innerHTML = `
+      <div class="wiz-wrap">
+        <h1 class="page-title">Done</h1>
+        <p class="page-sub">This operation is recorded. For privacy, documents are generated once and aren't stored here. Start a new operation if you need to regenerate them.</p>
+        <div class="wiz-nav no-print"><span></span>
+          <button type="button" class="btn gold" data-wiz="new">New operation</button>
+        </div>
+      </div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="wiz-wrap">
+      <h1 class="page-title">Documents ready</h1>
+      <p class="page-sub">Operation #${deal.opNumber} &middot; Rate ${esc(deal.tierPreset)} &middot; Cash US$${fmtMoney(deal.anticipo.monto)}</p>
+      <p class="hint" style="margin:-12px 0 18px;">${emailConfigured() ? 'A summary was emailed to you and your assistant.' : 'Download the documents below. (Auto-email is not set up yet.)'} Names and IDs are not saved to the dashboard.</p>
+      <div class="wiz-nav no-print" style="margin-bottom:18px;">
+        <button type="button" class="btn ghost" data-wiz="new">New operation</button>
+        <button type="button" class="btn gold" data-wiz="goPanel">Go to dashboard</button>
+      </div>
+      <div id="doc-preview-area"></div>
+    </div>
+  `;
+  renderDocPreview('doc-preview-area', deal);
+}
+
+function renderDocPreview(containerId, deal) {
+  const keys = Object.keys(DOC_GENERATORS);
+  let active = keys[0];
+  const container = document.getElementById(containerId);
+
+  function paint() {
+    container.innerHTML = `
+      <div class="card no-print" style="background:var(--paper);border:none;padding:0;">
+        <div class="doc-tabs">
+          ${keys.map(k => `<button data-doc="${k}" class="${k===active?'active':''}">${DOC_GENERATORS[k].label}</button>`).join('')}
+          <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+            <button class="btn ghost small" id="btn-copy">Copy text</button>
+            <button class="btn small" id="btn-print">Print / Save PDF</button>
+          </div>
+        </div>
+      </div>
+      <div class="doc-page" id="doc-render">${DOC_GENERATORS[active].fn(deal)}</div>
+    `;
+    container.querySelectorAll('.doc-tabs button[data-doc]').forEach(b => {
+      b.addEventListener('click', () => { active = b.dataset.doc; paint(); });
+    });
+    container.querySelector('#btn-print').addEventListener('click', () => window.print());
+    container.querySelector('#btn-copy').addEventListener('click', () => {
+      const text = container.querySelector('#doc-render').innerText;
+      navigator.clipboard.writeText(text).then(() => showToast('Text copied.'));
+    });
+  }
+  paint();
+}
+
+/* ============ DASHBOARD VIEW ============ */
+function renderPanelView() {
+  const el = document.getElementById('view-panel');
+  const k = computeKPIs();
+  const pending = DEALS.filter(d => d.status === 'pendingApproval');
+  const outstanding = DEALS.filter(d => d.status === 'outstanding');
+  const paid = DEALS.filter(d => d.status === 'paid');
+  const canDelete = isMaster();
+
+  el.innerHTML = `
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Live exposure and performance. No client names or IDs are stored here.</p>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="label">Capital outstanding</div><div class="value">US$${fmtMoney(k.outstandingSum)}</div></div>
+      <div class="kpi"><div class="label">Open operations</div><div class="value">${k.outstandingCount}</div></div>
+      <div class="kpi"><div class="label">Total collected</div><div class="value gold">US$${fmtMoney(k.totalCollected)}</div></div>
+      <div class="kpi"><div class="label">Fee + legal revenue</div><div class="value">US$${fmtMoney(k.totalFeeRevenue)}</div></div>
+      <div class="kpi"><div class="label">Avg days to collect</div><div class="value">${k.avgDays != null ? k.avgDays : '—'}</div></div>
+    </div>
+
+    ${pending.length ? `
+    <div class="card">
+      <h2>Awaiting your approval</h2>
+      <table class="ledger">
+        <tr><th>Operation</th><th>Advance</th><th>Reported pay date</th><th>Amount</th><th></th></tr>
+        ${pending.map(d => `
+          <tr>
+            <td>#${d.opNumber}</td>
+            <td class="num">US$${fmtMoney(d.anticipoMonto)}</td>
+            <td>${dateShort(d.pagoFecha)}</td>
+            <td class="num">US$${fmtMoney(d.pagoMontoPropuesto)}</td>
+            <td style="display:flex;gap:6px;">
+              <button class="btn small gold" data-approve="${d.id}">Approve</button>
+              <button class="btn ghost small" data-reject="${d.id}">Revert</button>
+            </td>
+          </tr>`).join('')}
+      </table>
+    </div>` : ''}
+
+    <div class="card">
+      <h2>Open operations (${outstanding.length})</h2>
+      ${outstanding.length ? `
+      <table class="ledger">
+        <tr><th>Operation</th><th>Rate</th><th>Advance</th><th>Current tier</th><th>Due today</th><th>Days</th><th></th></tr>
+        ${outstanding.map(d => {
+          const days = daysBetween(d.anticipoFecha, todayStr());
+          const tier = tierForDay(d.tiers, Math.max(days, 0));
+          const row = computeTierRow(d.anticipoMonto, tier);
+          return `
+          <tr data-detail="${d.id}">
+            <td>#${d.opNumber}</td>
+            <td><span class="pill-tarifa">${d.tierPreset || 'A'}</span></td>
+            <td class="num">US$${fmtMoney(d.anticipoMonto)}</td>
+            <td>${escalationBar(tier.label)}</td>
+            <td class="num">US$${fmtMoney(row.total)}</td>
+            <td class="num">${days}</td>
+            <td style="display:flex;gap:6px;justify-content:flex-end;">
+              <button class="btn ghost small" data-mark-paid="${d.id}">Mark paid</button>
+              ${canDelete ? `<button class="btn ghost small" data-delete="${d.id}">Delete</button>` : ''}
+            </td>
+          </tr>`;
+        }).join('')}
+      </table>` : `<div class="empty">No open operations yet.</div>`}
+    </div>
+
+    <div class="card">
+      <h2>Closed operations (${paid.length})</h2>
+      ${paid.length ? `
+      <table class="ledger">
+        <tr><th>Operation</th><th>Advance</th><th>Days to collect</th><th>Closed in tier</th><th>Collected</th><th>Via</th>${canDelete?'<th></th>':''}</tr>
+        ${paid.map(d => {
+          const days = daysBetween(d.anticipoFecha, d.pagoFecha);
+          const tier = tierForDay(d.tiers, Math.max(days,0));
+          return `
+          <tr data-detail="${d.id}">
+            <td>#${d.opNumber}</td>
+            <td class="num">US$${fmtMoney(d.anticipoMonto)}</td>
+            <td class="num">${days}</td>
+            <td><span class="pill t${tier.label}">Tier ${tier.label}</span></td>
+            <td class="num">US$${fmtMoney(d.pagoMonto)}</td>
+            <td>${d.viaAvisoDeCesion ? 'Notice of Assignment' : 'Direct payment'}</td>
+            ${canDelete ? `<td><button class="btn ghost small" data-delete="${d.id}">Delete</button></td>` : ''}
+          </tr>`;
+        }).join('')}
+      </table>` : `<div class="empty">No closed operations yet.</div>`}
+    </div>
+  `;
+  // Row/action clicks are delegated at the document level (see wireDelegation).
+}
+
+function escalationBar(activeLabel) {
+  return `<div class="escalation">
+    <div class="seg t1${activeLabel===1?' active':''}" style="flex:1;"></div>
+    <div class="seg t2${activeLabel===2?' active':''}" style="flex:1;"></div>
+    <div class="seg t3${activeLabel===3?' active':''}" style="flex:1;"></div>
+  </div>`;
+}
+
+/* ============ MODALS ============ */
+function modalShell(innerHTML) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `<div class="modal-backdrop" id="modal-backdrop"><div class="modal">${innerHTML}</div></div>`;
+  document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+    if (e.target.id === 'modal-backdrop') closeModal();
+  });
+}
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+
+function openMarkPaidModal(dealId) {
+  const deal = DEALS.find(d => d.id === dealId);
+  const days = daysBetween(deal.anticipoFecha, todayStr());
+  const tier = tierForDay(deal.tiers, Math.max(days,0));
+  const row = computeTierRow(deal.anticipoMonto, tier);
+  modalShell(`
+    <div class="modal-head"><h3>Mark as paid</h3><button class="btn ghost small" id="modal-x">Close</button></div>
+    <div class="modal-body">
+      <p style="margin-top:0;color:var(--muted);">Operation #${deal.opNumber} &mdash; advance US$${fmtMoney(deal.anticipoMonto)}</p>
+      <div class="field"><label>Payment date</label><input type="date" id="pago-fecha" value="${todayStr()}"></div>
+      <div class="field"><label>Amount collected (US$)</label><input type="number" step="0.01" id="pago-monto" value="${row.total}"></div>
+      <div class="field"><label><input type="checkbox" id="via-aviso" style="width:auto;margin-right:6px;">Collected directly from the debtor via Notice of Assignment</label></div>
+      <p class="hint">This waits for approval on the dashboard before it counts as closed.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="modal-cancel">Cancel</button>
+      <button class="btn gold" id="modal-submit">Report payment</button>
+    </div>
+  `);
+  document.getElementById('modal-x').addEventListener('click', closeModal);
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-submit').addEventListener('click', async () => {
+    deal.status = 'pendingApproval';
+    deal.pagoFecha = document.getElementById('pago-fecha').value;
+    deal.pagoMontoPropuesto = parseFloat(document.getElementById('pago-monto').value);
+    deal.viaAvisoDeCesion = document.getElementById('via-aviso').checked;
+    await saveDeals();
+    closeModal();
+    showToast('Payment reported. Awaiting approval.');
+    renderPanelView();
+  });
+}
+
+async function approveDeal(dealId) {
+  const deal = DEALS.find(d => d.id === dealId);
+  deal.status = 'paid';
+  deal.pagoMonto = deal.pagoMontoPropuesto;
+  deal.aprobado = true;
+  deal.aprobadoFecha = todayStr();
+  await saveDeals();
+  showToast('Payment approved. Operation closed.');
+  renderPanelView();
+}
+
+async function revertDeal(dealId) {
+  const deal = DEALS.find(d => d.id === dealId);
+  deal.status = 'outstanding';
+  deal.pagoFecha = null; deal.pagoMontoPropuesto = null; deal.viaAvisoDeCesion = false;
+  await saveDeals();
+  showToast('Reverted to open.');
+  renderPanelView();
+}
+
+function openDeleteModal(dealId) {
+  if (!isMaster()) { showToast('Only the master user can delete.'); return; }
+  const deal = DEALS.find(d => d.id === dealId);
+  modalShell(`
+    <div class="modal-head"><h3>Delete operation #${deal.opNumber}?</h3><button class="btn ghost small" id="modal-x">Close</button></div>
+    <div class="modal-body">
+      <p style="margin-top:0;">This permanently removes operation #${deal.opNumber} (advance US$${fmtMoney(deal.anticipoMonto)}) from the dashboard. This can't be undone.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="modal-cancel">Cancel</button>
+      <button class="btn gold" id="modal-delete">Delete</button>
+    </div>
+  `);
+  document.getElementById('modal-x').addEventListener('click', closeModal);
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal-delete').addEventListener('click', async () => {
+    DEALS = DEALS.filter(d => d.id !== dealId);
+    await saveDeals();
+    closeModal();
+    showToast('Operation deleted.');
+    renderPanelView();
+  });
+}
+
+// Detail modal: financial breakdown only. Documents are NOT shown here because
+// names/IDs are never stored — by design. Tier table is fully reconstructable
+// from the stored numbers.
+function openDetailModal(dealId) {
+  const deal = DEALS.find(d => d.id === dealId);
+  const table = buildTierTable(deal.anticipoMonto, deal.tiers, deal.anticipoFecha);
+  const days = daysBetween(deal.anticipoFecha, todayStr());
+  const curTier = tierForDay(deal.tiers, Math.max(days, 0));
+  modalShell(`
+    <div class="modal-head"><h3>Operation #${deal.opNumber}</h3><button class="btn ghost small" id="modal-x">Close</button></div>
+    <div class="modal-body">
+      <p style="margin-top:0;color:var(--muted);font-size:13px;">
+        Rate ${esc(deal.tierPreset || 'A')} &middot; Total owed US$${fmtMoney(deal.creditoMonto)} &middot; Cash advanced US$${fmtMoney(deal.anticipoMonto)} &middot; Advanced ${dateShort(deal.anticipoFecha)}
+        ${deal.status === 'paid' ? ` &middot; Collected US$${fmtMoney(deal.pagoMonto)} on ${dateShort(deal.pagoFecha)}` : ` &middot; ${days} days elapsed (now in tier ${curTier.label})`}
+      </p>
+      <table class="ledger" style="margin-top:10px;">
+        <tr><th>Tier</th><th>Window</th><th>Commission</th><th>Legal</th><th>Total to repay</th></tr>
+        ${table.map(r => `
+          <tr${r.label===curTier.label && deal.status!=='paid' ? ' style="background:rgba(255,255,255,0.05);"' : ''}>
+            <td>Tier ${r.label} (${r.pct}%)</td>
+            <td>${dateShort(r.periodStart.toISOString().slice(0,10))}${r.periodEnd ? ' – ' + dateShort(r.periodEnd.toISOString().slice(0,10)) : '+'}</td>
+            <td class="num">US$${fmtMoney(r.commission)}</td>
+            <td class="num">US$${fmtMoney(r.legal)}</td>
+            <td class="num">US$${fmtMoney(r.total)}</td>
+          </tr>`).join('')}
+      </table>
+      <p class="hint" style="margin-top:12px;">Documents (with names and IDs) were generated when this operation was created and emailed. They aren't stored here for privacy.</p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="modal-x2">Close</button>
+    </div>
+  `);
+  document.getElementById('modal-x').addEventListener('click', closeModal);
+  document.getElementById('modal-x2').addEventListener('click', closeModal);
+}
+
+/* ============ NAV / INIT ============ */
+function setView(view) {
+  CURRENT_VIEW = view;
+  document.querySelectorAll('nav button[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  if (view === 'nuevo') renderNuevoView();
+  if (view === 'panel') renderPanelView();
+}
+
+// Single delegated handler for all app actions. Attached once to document,
+// so it works no matter when/how elements are (re)rendered via innerHTML.
+let DELEGATION_WIRED = false;
+function wireDelegation() {
+  if (DELEGATION_WIRED) return;
+  DELEGATION_WIRED = true;
+  document.addEventListener('click', (e) => {
+    const navBtn = e.target.closest('nav button[data-view]');
+    if (navBtn) { setView(navBtn.dataset.view); return; }
+
+    const markPaid = e.target.closest('[data-mark-paid]');
+    if (markPaid) { openMarkPaidModal(markPaid.dataset.markPaid); return; }
+
+    const approve = e.target.closest('[data-approve]');
+    if (approve) { approveDeal(approve.dataset.approve); return; }
+
+    const reject = e.target.closest('[data-reject]');
+    if (reject) { revertDeal(reject.dataset.reject); return; }
+
+    const del = e.target.closest('[data-delete]');
+    if (del) { openDeleteModal(del.dataset.delete); return; }
+
+    const detailRow = e.target.closest('[data-detail]');
+    if (detailRow && !e.target.closest('button')) { openDetailModal(detailRow.dataset.detail); return; }
+
+    const wizBtn = e.target.closest('[data-wiz]');
+    if (wizBtn) {
+      const a = wizBtn.dataset.wiz;
+      if (a === 'next') wizNext();
+      else if (a === 'back') wizBack();
+      else if (a === 'new') { WIZ = freshWiz(); LAST_FULL_DEAL = null; renderNuevoView(); }
+      else if (a === 'goPanel') { LAST_FULL_DEAL = null; WIZ = freshWiz(); setView('panel'); }
+      return;
+    }
+
+    const tarifaCard = e.target.closest('.tarifa-card');
+    if (tarifaCard) {
+      const radio = tarifaCard.querySelector('input[name="tierPreset"]');
+      if (radio) { radio.checked = true; if (WIZ) WIZ.tierPreset = radio.value === 'B' ? 'B' : 'A'; }
+      return;
+    }
+  });
+
+  // Live 60%-cap hint as the amounts are typed in the wizard.
+  document.addEventListener('input', (e) => {
+    if (e.target && (e.target.id === 'wiz-credito' || e.target.id === 'wiz-anticipo')) {
+      const rec = parseFloat(document.getElementById('wiz-credito').value);
+      const adv = parseFloat(document.getElementById('wiz-anticipo').value);
+      const hint = document.getElementById('wiz-cap-hint');
+      if (!hint) return;
+      if (!Number.isFinite(rec) || rec <= 0) {
+        hint.textContent = 'Enter the total owed first.';
+        hint.style.color = '';
+        return;
+      }
+      const max = rec * MAX_ADVANCE_PCT;
+      if (Number.isFinite(adv) && adv > max + 0.005) {
+        hint.textContent = `Exceeds 60%. Maximum cash: US$${fmtMoney(max)}`;
+        hint.style.color = 'var(--rust)';
+      } else {
+        hint.textContent = `Maximum cash (60%): US$${fmtMoney(max)}`;
+        hint.style.color = '';
+      }
+    }
+  });
+}
+
+async function init() {
+  wireDelegation();
+  await loadDeals();
+  setView('nuevo');
+}
+
+/* ============ LOGIN GATE ============ */
+// Client-side check only — a determined person with the file could brute-force
+// this offline. It blocks casual/accidental access if the link leaks, not a
+// real adversary. The dashboard stores no sensitive data, so this is adequate
+// for a two-person internal tool. Synchronous, dependency-free hash.
+// Maps credential hash -> username. User "1" is master (can delete).
+const AUTH_USERS = {
+  '908ec7b251f092ee': '1',   // 1 / davinci88  (master)
+  '5a380285fdd225d1': 'v'    // v / sandysandy33 (everything except delete)
+};
+
+function simpleHash(str) {
+  let h1 = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) {
+    h1 ^= str.charCodeAt(i);
+    h1 = Math.imul(h1, 0x01000193);
+  }
+  let h2 = 0x9e3779b9;
+  for (let i = str.length - 1; i >= 0; i--) {
+    h2 ^= str.charCodeAt(i);
+    h2 = Math.imul(h2, 0x85ebca6b);
+  }
+  return (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0');
+}
+
+function bootLoginGate() {
+  const loginBtn = document.getElementById('login-btn');
+  const userInput = document.getElementById('login-user');
+  const passInput = document.getElementById('login-pass');
+  const logoutBtn = document.getElementById('logout-btn');
+  if (!loginBtn || !userInput || !passInput || !logoutBtn) {
+    setTimeout(bootLoginGate, 50);
+    return;
+  }
+  function attemptLogin() {
+    const user = (userInput.value || '').trim().toLowerCase();
+    const pass = passInput.value || '';
+    const hash = simpleHash(`${user}:${pass}`);
+    const matchedUser = AUTH_USERS[hash];
+    if (matchedUser) {
+      doLogin(matchedUser);
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+      passInput.value = '';
+    }
+  }
+  loginBtn.addEventListener('click', attemptLogin);
+  passInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
+  userInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
+  logoutBtn.addEventListener('click', () => location.reload());
+
+  // Touch ID (WebAuthn) — wire buttons and show/hide based on availability.
+  setupTouchIdUI();
+}
+
+function doLogin(user) {
+  CURRENT_USER = user;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-root').style.display = '';
+  const tag = document.getElementById('user-tag');
+  if (tag) tag.textContent = user === '1' ? 'Master' : 'User v';
+  // Offer Touch ID enrollment to the master once signed in (if available & not set).
+  const enableBtn = document.getElementById('enable-touchid-btn');
+  if (enableBtn) {
+    const show = (user === '1') && webauthnAvailable() && !passkeyRegistered();
+    enableBtn.style.display = show ? '' : 'none';
+  }
+  init();
+}
+
+/* ===== Touch ID via WebAuthn (platform authenticator) =====
+   Works only over HTTPS (your live GitHub Pages URL), not file:// or the
+   preview. It's a local convenience unlock tied to THIS Mac and THIS site,
+   layered on top of the password (which always remains as backup). A
+   successful Touch ID prompt unlocks as the master user. */
+const PASSKEY_LS = 'bbf-passkey-v1';
+
+function webauthnAvailable() {
+  try {
+    return !!(window.PublicKeyCredential && navigator.credentials &&
+              window.isSecureContext && location.hostname);
+  } catch (e) { return false; }
+}
+function passkeyRegistered() {
+  try { return !!localStorage.getItem(PASSKEY_LS); } catch (e) { return false; }
+}
+function bufToB64url(buf) {
+  const bytes = new Uint8Array(buf);
+  let s = '';
+  for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+  return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function b64urlToBuf(s) {
+  s = s.replace(/-/g,'+').replace(/_/g,'/');
+  while (s.length % 4) s += '=';
+  const bin = atob(s);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes.buffer;
+}
+function randomBytes(n) {
+  const b = new Uint8Array(n);
+  (window.crypto || {}).getRandomValues && window.crypto.getRandomValues(b);
+  return b;
+}
+
+async function registerPasskey() {
+  if (!webauthnAvailable()) { showToast('Touch ID needs the live HTTPS site (not the local file).'); return; }
+  try {
+    const cred = await navigator.credentials.create({
+      publicKey: {
+        challenge: randomBytes(32),
+        rp: { name: 'Bay Bay Capital', id: location.hostname },
+        user: { id: randomBytes(16), name: 'master', displayName: 'Master' },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'preferred' },
+        timeout: 60000,
+        attestation: 'none'
+      }
+    });
+    const rec = { credId: bufToB64url(cred.rawId), user: '1' };
+    localStorage.setItem(PASSKEY_LS, JSON.stringify(rec));
+    showToast('Touch ID enabled on this Mac.');
+    const enableBtn = document.getElementById('enable-touchid-btn');
+    if (enableBtn) enableBtn.style.display = 'none';
+  } catch (e) {
+    showToast('Could not enable Touch ID. ' + (e && e.name ? e.name : ''));
+  }
+}
+
+async function unlockWithPasskey() {
+  if (!webauthnAvailable() || !passkeyRegistered()) return;
+  try {
+    const rec = JSON.parse(localStorage.getItem(PASSKEY_LS));
+    await navigator.credentials.get({
+      publicKey: {
+        challenge: randomBytes(32),
+        allowCredentials: [{ type: 'public-key', id: b64urlToBuf(rec.credId) }],
+        userVerification: 'required',
+        timeout: 60000,
+        rpId: location.hostname
+      }
+    });
+    // A successful assertion required the fingerprint — unlock.
+    doLogin(rec.user || '1');
+  } catch (e) {
+    showToast('Touch ID was cancelled or failed.');
+  }
+}
+
+function setupTouchIdUI() {
+  const unlockBtn = document.getElementById('touchid-unlock-btn');
+  const enableBtn = document.getElementById('enable-touchid-btn');
+  if (unlockBtn) {
+    unlockBtn.addEventListener('click', unlockWithPasskey);
+    unlockBtn.style.display = (webauthnAvailable() && passkeyRegistered()) ? '' : 'none';
+  }
+  if (enableBtn) {
+    enableBtn.addEventListener('click', registerPasskey);
+    enableBtn.style.display = 'none'; // shown after master signs in (see doLogin)
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootLoginGate);
+} else {
+  bootLoginGate();
+}
+
+</script>
+</body>
+</html>
